@@ -1,25 +1,22 @@
-let changeColor = document.getElementById("changeColor");
+let changeColor = document.getElementById("scraping");
 
-chrome.storage.sync.get("color", ({ color }) => {
-  changeColor.style.backgroundColor = color;
+chrome.runtime.onMessage.addListener(function (request, sender) {
+  if (request.action == "getSource") {
+    message.innerText = request.source;
+  }
 });
 
-// When the button is clicked, inject setPageBackgroundColor into current page
-changeColor.addEventListener("click", async () => {
-  
+scraping.addEventListener("click", async () => {
+
   let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-  chrome.scripting.executeScript({
-    target: { tabId: tab.id },
-    function: setPageBackgroundColor,
-  });
-});
+  var message = document.querySelector('#message');
 
-// The body of this function will be executed as a content script inside the
-// current page
-function setPageBackgroundColor() {
-  chrome.storage.sync.get("color", ({ color }) => {
-    console.log('hola');
-    document.body.style.backgroundColor = color;
-  });
-}
+  chrome.scripting.executeScript(
+    {
+      target: { tabId: tab.id },
+      files: ['getPageSource.js'],
+    }
+  );
+
+});
